@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "glome-deasync": "^1.0.9"
+    "glome-deasync": "https://github.com/rareweave/deasync"
   }
 }

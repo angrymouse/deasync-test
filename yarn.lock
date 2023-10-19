@@ -32,6 +32,13 @@ glome-deasync@^1.0.9:
     follow-redirects "^1.15.3"
     tar-fs "^3.0.4"
 
+"glome-deasync@https://github.com/rareweave/deasync":
+  version "1.0.9"
+  resolved "https://github.com/rareweave/deasync#cd19e8b380ee05c1efedfb5562b84dead06310e7"
+  dependencies:
+    follow-redirects "^1.15.3"
+    tar-fs "^3.0.4"
+
 mkdirp-classic@^0.5.2:
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/mkdirp-classic/-/mkdirp-classic-0.5.3.tgz#fa10c9115cc6d8865be221ba47ee9bed78601113"

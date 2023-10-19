@@ -1,14 +1,66 @@
 const { awaitSync } = require("glome-deasync");
-const { performance } = require("perf_hooks");
 
-async function main() {
-    const promise = new Promise(resolve => setTimeout(resolve, 5000)).then(() => "wake up!")
-    const promise2 = new Promise(resolve => setTimeout(resolve, 1000)).then(() => "wake up!")
-    promise2.then(()=>console.log("hi 1000"))
-    console.log("Timestamp before: " + performance.now());
-    
-    console.log(awaitSync(promise));
-    console.log("Timestamp after: " + performance.now());
+function isAsyncFunction(fn) {
+    return fn && fn.constructor && fn.constructor.name === "AsyncFunction";
 }
 
-main();
+function wrapAsyncFunction(fn) {
+    return (...args) => {
+        return awaitSync(fn(...args));
+    };
+}
+
+module.exports.wait = (ms) => {
+    return new Promise(resolve => {
+        setTimeout(() => resolve("done waiting"), ms)
+    })
+}
+module.exports.syncify = function syncify(O) {
+    if (!O) return O;
+
+    if (Array.isArray(O)) {
+        return O.map(item => {
+            if (typeof item === "function") {
+                if (isAsyncFunction(item)) {
+                    return wrapAsyncFunction(item);
+                } else {
+                    return item;
+                }
+            } else if (typeof item === "object") {
+                return syncify(item);
+            } else {
+                return item;
+            }
+        });
+    } else if (typeof O === "object") {
+        const mO = {};
+        for (const k in O) {
+            if (O.hasOwnProperty(k)) {
+                if (typeof O[k] === "function") {
+                    if (isAsyncFunction(O[k])) {
+                        mO[k] = wrapAsyncFunction(O[k]);
+                    } else {
+                        mO[k] = O[k];
+                    }
+                } else if (typeof O[k] === "object") {
+                    mO[k] = syncify(O[k]);
+                } else {
+                    mO[k] = O[k];
+                }
+            }
+        }
+        return mO;
+    }
+    return O;
+};
+
+async function main() {
+    const { wait }=module.exports.syncify({
+        wait: async () => {
+        await module.exports.wait(5000)
+        }
+    })
+    wait()
+    console.log("passed wait")
+}
+main()
